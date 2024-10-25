@@ -15,6 +15,7 @@ class Data:
 
         self.country_names = list(self.member_country.columns.copy())
         self.country_sizes = self.member_country.sum().to_numpy() #TO FIX
+        # self.country_sizes = np.array([]) # Ben will fix this
 
         member_vote_for_path = os.path.join(data_folder, 'member_vote_for.csv')
         self.member_vote_for = pd.read_csv(member_vote_for_path, index_col="member_id")
