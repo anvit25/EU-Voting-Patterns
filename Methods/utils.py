@@ -2,6 +2,8 @@ import numpy as np
 import scipy.linalg as la
 import pandas as pd
 import os
+from sklearn.cluster import KMeans
+import geopandas as gpd
 
 class Data:
     def __init__(self, type = 'featured'):
@@ -24,6 +26,21 @@ class Data:
         member_vote_against_path = os.path.join(data_folder, 'member_vote_against.csv')
         self.member_vote_against = pd.read_csv(member_vote_against_path, index_col="member_id")
         assert np.all(self.member_vote_against.index == self.member_country.index)
+
+        europe = gpd.read_file('maps/ne_110m_admin_0_countries_lakes.shp')
+        europe = europe[["SOV_A3", "NAME_EN", "geometry"]]
+        europe = europe.rename(columns={"SOV_A3": "Name"})
+
+        #DNK, FIN, FRA, MLT, NLD
+        #DN1, FI1, FR1, missing, NL1
+        europe.loc[europe.Name == "DN1", "Name"] = "DNK"
+        europe.loc[europe.Name == "FI1", "Name"] = "FIN"
+        europe.loc[europe.Name == "FR1", "Name"] = "FRA"
+        europe.loc[europe.Name == "NL1", "Name"] = "NLD"
+
+        europe.drop(europe[europe.NAME_EN == "French Southern and Antarctic Lands"].index, inplace=True)
+        europe.drop(europe[europe.NAME_EN == "New Caledonia"].index, inplace=True)
+        self.europe_df = europe
 
 
     def get_member_country(self, pandas = False):
@@ -52,7 +69,12 @@ class Data:
     def get_country_country(self, yes_votes = True, normalize = False):
         vote_coun = self.get_vote_country(yes_votes = yes_votes, normalize = normalize)
         return vote_coun.T @ vote_coun
-
+    
+    def get_europe_df(self):
+        try:
+            return self.europe_df.merge(self.labels, on="Name", how="right")
+        except AttributeError:
+            raise AttributeError("Please run the fit method before calling this method. self.labels not found.")
 
 class BaseCommunityDetection(Data):
     def __init__(self, dtype = 'featured'):
@@ -76,6 +98,11 @@ class BaseCommunityDetection(Data):
         vals, vecs = la.eigh(A)
         idx = np.argsort(vals)[::-1]
         return vals[idx], vecs[:,idx]
+    
+    def generate_labels(self, n_clusters = 3):
+        model = KMeans(n_clusters = n_clusters, init='k-means++')
+        return model.fit_predict(self.embedding)
+
     
 class TemplateMethod(BaseCommunityDetection):
     '''
@@ -107,7 +134,7 @@ class TemplateMethod(BaseCommunityDetection):
         '''
         self.labels = pd.DataFrame({
             "Name": self.country_names,
-            "Label": np.random.randint(0, 3, len(self.country_names))
+            "Label": self.generate_labels(3) # using self.embedding, may need to change
         })
         return self
 

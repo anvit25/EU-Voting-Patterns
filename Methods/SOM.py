@@ -57,14 +57,14 @@ class SOM(BaseCommunityDetection):
             norm_delta = self.one_step()
             pbar.set_description(f"Norm Delta: {norm_delta}")
 
-        self.embeddings = np.zeros((self.data.shape[1], 2))
+        self.embedding = np.zeros((self.data.shape[1], 2))
         for i in range(self.data.shape[1]):
             x, y = np.unravel_index(np.argmin(np.sum((self.grid - self.data[:, i])**2, axis=2)), (self.grid_size, self.grid_size))
-            self.embeddings[i] = [x, y]
+            self.embedding[i] = [x, y]
 
         self.labels = pd.DataFrame({
             "Name": self.country_names,
-            "Label": np.random.randint(0, 3, len(self.country_names))
+            "Label": self.generate_labels(3)
         })
         return self
     
