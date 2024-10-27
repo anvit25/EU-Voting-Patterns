@@ -40,13 +40,14 @@ class Data:
             return self.member_vote_for.to_numpy()
         return self.member_vote_against.to_numpy()
     
-    def get_vote_country(self, yes_votes = True, normalize = False):
+    def get_vote_country(self, yes_votes = True, normalize = False, pandas = False):
         mem_coun = self.get_member_country() 
         if normalize:
             mem_coun = mem_coun/self.country_sizes
-        if yes_votes:
-            return self.get_member_vote().T @ mem_coun
-        return self.get_member_vote(yes_votes = False).T @ mem_coun
+        ans = self.get_member_vote(yes_votes=yes_votes).T @ mem_coun
+        if pandas:
+            return pd.DataFrame(ans, columns = self.country_names)
+        return ans
     
     def get_country_country(self, yes_votes = True, normalize = False):
         vote_coun = self.get_vote_country(yes_votes = yes_votes, normalize = normalize)
