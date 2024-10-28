@@ -78,8 +78,9 @@ class Data:
             raise AttributeError("Please run the fit method before calling this method. self.labels not found.")
 
 class BaseCommunityDetection(Data):
-    def __init__(self, dtype = 'featured'):
+    def __init__(self, dtype = 'featured', n_clusters = 3):
         self.name = "Base"
+        self.n_clusters = n_clusters
         super().__init__(dtype)
     
     def __str__(self):
@@ -100,9 +101,17 @@ class BaseCommunityDetection(Data):
         idx = np.argsort(vals)[::-1]
         return vals[idx], vecs[:,idx]
     
-    def generate_labels(self, n_clusters = 3):
+    def generate_labels(self, n_clusters = None, save = True):
+        if n_clusters is None:
+            n_clusters = self.n_clusters
         model = KMeans(n_clusters = n_clusters, init='k-means++')
-        return model.fit_predict(self.embedding)
+        labels = model.fit_predict(self.embedding)
+        if save:
+            self.labels = pd.DataFrame({
+                "Name": self.country_names,
+                "Label": labels
+            })
+        return labels 
     
     def make_map(self):
         try:
@@ -148,11 +157,12 @@ class TemplateMethod(BaseCommunityDetection):
         Saves a pd.DataFrame in the attribute called self.labels with the following columns:
         - "Name"  - Country name
         - "Label" - Cluster number
+
+        Currently, the method generate_labels does this for us by running k means on self.embedding.
+        If your method requires a different way to generate the labels, you should implement it here
+        and save the labels in the same format as above.
         '''
-        self.labels = pd.DataFrame({
-            "Name": self.country_names,
-            "Label": self.generate_labels(3) # using self.embedding, may need to change
-        })
+        self.generate_labels(3) # using self.embedding, may need to change
         return self
 
 if __name__ == "__main__":
