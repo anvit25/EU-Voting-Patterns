@@ -4,6 +4,7 @@ import pandas as pd
 import os
 from sklearn.cluster import KMeans
 import geopandas as gpd
+import matplotlib.pyplot as plt
 
 class Data:
     def __init__(self, type = 'featured'):
@@ -102,6 +103,22 @@ class BaseCommunityDetection(Data):
     def generate_labels(self, n_clusters = 3):
         model = KMeans(n_clusters = n_clusters, init='k-means++')
         return model.fit_predict(self.embedding)
+    
+    def make_map(self):
+        try:
+            europe = self.get_europe_df()
+            fig, ax = plt.subplots(1, 1, figsize=(8, 8))
+            europe.plot(ax = ax, 
+                        edgecolor = "black",
+                        column = "Label",
+                        cmap = "Paired",
+                        categorical = True,
+            )
+            ax.set_xlim(-15, 35)
+            ax.set_ylim(32, 72)
+            return fig, ax
+        except AttributeError:
+            raise AttributeError("Please run the fit method before calling this method. self.labels not found.")
 
     
 class TemplateMethod(BaseCommunityDetection):
