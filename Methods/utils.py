@@ -29,7 +29,7 @@ class Data:
         self.member_vote_against = pd.read_csv(member_vote_against_path, index_col="member_id")
         assert np.all(self.member_vote_against.index == self.member_country.index)
 
-        europe = gpd.read_file('maps/ne_110m_admin_0_countries_lakes.shp')
+        europe = gpd.read_file('maps/ne_110m_admin_0_countries_lakes.shp', engine="pyogrio")
         europe = europe[["SOV_A3", "NAME_EN", "geometry"]]
         europe = europe.rename(columns={"SOV_A3": "Name"})
 
