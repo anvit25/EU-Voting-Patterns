@@ -22,7 +22,7 @@ class SBM(BaseCommunityDetection):
         A = self.get_country_country(normalize=True)
         vals, vecs = self.sorted_eigh(A)
         self.e_vals = vals
-        print("Eigenvalues:", vals)
+        # print("Eigenvalues:", vals)
         if self.n_vectors == -1 or self.n_vectors > len(vals):
             self.n_vectors = len(vals)
         self.embedding = self.scaler.fit_transform(vecs[:, :self.n_vectors])

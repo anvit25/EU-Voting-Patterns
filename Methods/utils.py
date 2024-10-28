@@ -5,6 +5,7 @@ import os
 from sklearn.cluster import KMeans
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 class Data:
     def __init__(self, type = 'featured'):
@@ -113,19 +114,31 @@ class BaseCommunityDetection(Data):
             })
         return labels 
     
-    def make_map(self):
+    def plot_embedding(self, ax = None, **kwargs):
+        def label_point(xs, ys, vals, ax):
+            for x, y, val in zip(xs, ys, vals):
+                ax.text(x+.0002, y, val)
+        xs = self.embedding[:, 0]
+        ys = self.embedding[:, 1]
+        label = self.labels.loc[:, "Label"]
+        sns.scatterplot(x = xs, y = ys, c = label, ax = ax, **kwargs)
+        label_point(xs, ys, self.labels.Name, ax = ax)
+    
+    def plot_map(self, ax = None, **kwargs):
         try:
             europe = self.get_europe_df()
-            fig, ax = plt.subplots(1, 1, figsize=(8, 8))
+            if ax is None:
+                fig, ax = plt.subplots(1, 1, figsize = (10, 10))
             europe.plot(ax = ax, 
                         edgecolor = "black",
                         column = "Label",
                         cmap = "Paired",
                         categorical = True,
+                        **kwargs
             )
             ax.set_xlim(-15, 35)
             ax.set_ylim(32, 72)
-            return fig, ax
+            return ax
         except AttributeError:
             raise AttributeError("Please run the fit method before calling this method. self.labels not found.")
 
