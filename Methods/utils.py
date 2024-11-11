@@ -115,6 +115,8 @@ class BaseCommunityDetection(Data):
         return labels 
     
     def plot_embedding(self, ax = None, **kwargs):
+        if ax is None:
+            fig, ax = plt.subplots(1, 1, figsize = (6, 6))
         def label_point(xs, ys, vals, ax):
             for x, y, val in zip(xs, ys, vals):
                 ax.text(x+.0002, y, val)

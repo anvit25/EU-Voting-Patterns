@@ -21,11 +21,11 @@ class SOM(BaseCommunityDetection):
 
         All these methods have some optional parameters. Check the Data class for more information.
     '''
-    def __init__(self, grid_size = 20, locality = 1/2, dtype = 'featured', mds = False):
+    def __init__(self, grid_size = 20, locality = 1/2, dtype = 'featured', mds = False, **kwargs):
         self.name = "Self Organizing Map"
         self.grid_size = grid_size
         self.locality = locality
-        super().__init__(dtype)
+        super().__init__(dtype, **kwargs)
         self.data = np.log(1/2 + self.get_vote_country(normalize=True))
         num_votes = self.data.shape[0]
         self.grid = np.random.uniform(0, 1, (grid_size, grid_size, num_votes))
