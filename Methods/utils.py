@@ -18,8 +18,12 @@ class Data:
         self.member_country = self.member_country.astype(int)
 
         self.country_names = list(self.member_country.columns.copy())
-        self.country_sizes = self.member_country.sum().to_numpy() #TO FIX
-        # self.country_sizes = np.array([]) # Ben will fix this
+        df = pd.DataFrame(self.member_country.sum())
+        df.columns = ["Members"]
+        actual_sizes = pd.read_csv("Methods/country_sizes.csv", index_col=0)
+        df = pd.merge(df, actual_sizes, left_index=True, right_index=True)
+        self.country_sizes = df["Total Seats"].to_numpy()
+
 
         member_vote_for_path = os.path.join(data_folder, 'member_vote_for.csv')
         self.member_vote_for = pd.read_csv(member_vote_for_path, index_col="member_id")
