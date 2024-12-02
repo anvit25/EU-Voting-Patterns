@@ -9,8 +9,8 @@ import seaborn as sns
 
 class Data:
     def __init__(self, type = 'featured'):
-        if type not in ['featured', 'main']:
-            raise ValueError("Invalid vote type. Please choose 'featured' or 'main'.")
+        if type not in ['featured', 'main', 'simulated']:
+            raise ValueError("Invalid vote type. Please choose 'featured' or 'main' or 'simulated'.")
         data_folder = os.path.join(f'{type}_data')
 
         member_country_path = os.path.join(data_folder, 'member_country.csv')
@@ -104,7 +104,7 @@ class BaseCommunityDetection(Data):
         """Compute the eigenvalues and eigenvectors of a matrix, sorted by decreasing eigenvalues."""
         vals, vecs = la.eigh(A)
         idx = np.argsort(vals)[::-1]
-        return vals[idx], vecs[:,idx]
+        return np.round(vals[idx], 10), vecs[:,idx]
     
     def generate_labels(self, n_clusters = None, save = True):
         if n_clusters is None:
