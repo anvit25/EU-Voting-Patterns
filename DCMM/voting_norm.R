@@ -81,7 +81,7 @@ for(i in 1:(ncol(mship)-1)){
       filtered_countries$color[j] = rgb(1, 0, 0, alpha = filtered_countries[[cl]][j])
     }
     else{
-      filtered_countries$color = "transparent"
+      filtered_countries$color[j] = "transparent"
     }
   }
   plot_list[[i]] = ggplot(data = filtered_countries) +
